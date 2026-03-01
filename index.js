@@ -166,6 +166,10 @@ class UI {
                         const newTop = (e.pageY || e.touches[0].pageY) - offsetY;
                         draggable.style.left = `${newLeft}px`;
                         draggable.style.top = `${newTop}px`;
+
+                        if( draggable.getAttribute("name") ){
+                            window.localStorage["draggable__" + draggable.getAttribute("name")] = JSON.stringify({ left: newLeft, top: newTop });
+                        }
                     };
 
                     const onMouseUp = () => {
@@ -189,6 +193,14 @@ class UI {
                     window.addEventListener('mouseup', onMouseUp);
                     window.addEventListener('touchend', onMouseUp);
                 });
+            }
+
+            if( window.localStorage["draggable__" + draggable.getAttribute("name")] ){
+                const pos = JSON.parse(window.localStorage["draggable__" + draggable.getAttribute("name")]);
+                draggable.style.position = 'absolute';
+                draggable.style.left = `${pos.left}px`;
+                draggable.style.top = `${pos.top}px`;
+                draggable.style.margin = '0';
             }
         });
     }
