@@ -1,0 +1,50 @@
+.time {
+    position: absolute;
+    bottom: 2vh;
+    right: 2vh;
+    opacity: 0.5;
+    text-align: right;
+}
+
+.time > * {
+    display: block;
+    font-size: 4em;
+    line-height: 1em;
+}
+
+.forecast {
+    display: flex;
+    flex-direction: row;
+}
+
+.forecast-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 2px;
+    flex: 1;
+}
+
+.draggable {
+    position: absolute;
+    user-select: none;
+}
+
+textarea {
+    user-select: all;
+    width: 100%;
+    max-width: 100%;
+    height: 80vh;
+    font-size: 1.5em;
+}
+
+body {
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+}
+
+.forecast-day > .wi {
+    padding: 4px;
+}

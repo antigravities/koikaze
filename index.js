@@ -1,0 +1,218 @@
+class Location {
+    static #cache = {};
+
+    static async fetch(){
+        if( ! this.#cache.data || this.#cache.expire < Date.now() ){
+            this.#cache.data = await (await fetch(`http://ip-api.com/json/?fields=66842623&lang=en`)).json();
+            this.#cache.expire = Date.now() + 3600000; // Cache for 1 hour
+        }
+
+        return {
+            country: this.#cache.data.country,
+            region: this.#cache.data.regionName,
+            city: this.#cache.data.city,
+            lat: this.#cache.data.lat,
+            lon: this.#cache.data.lon,
+            timezone: this.#cache.data.timezone
+        }
+    }
+}
+
+class Weather {
+    static #cache = {};
+
+    static codes = {
+        0: ['Clear', 'wi-day-sunny', 'wi-night-clear'],
+        1: ['Mainly clear', 'wi-day-sunny-overcast', 'wi-night-partly-cloudy'],
+        2: ['Partly cloudy', 'wi-day-cloudy', 'wi-night-cloudy'],
+        3: ['Overcast', 'wi-day-cloudy-high', 'wi-night-cloudy-high'],
+        45: ['Fog', 'wi-fog', 'wi-fog'],
+        48: ['Depositing rime fog', 'wi-fog', 'wi-fog'],
+        51: ['Light drizzle', 'wi-sprinkle', 'wi-sprinkle'],
+        53: ['Drizzle', 'wi-sprinkle', 'wi-sprinkle'],
+        55: ['Dense drizzle', 'wi-sprinkle', 'wi-sprinkle'],
+        56: ['Freezing drizzle', 'wi-sleet', 'wi-sleet'],
+        57: ['Heavy freezing drizzle', 'wi-sleet', 'wi-sleet'],
+        61: ['Slight rain', 'wi-raindrops', 'wi-raindrops'],
+        63: ['Rain', 'wi-rain', 'wi-rain'],
+        65: ['Heavy rain', 'wi-rain', 'wi-rain'],
+        66: ['Freezing rain', 'wi-rain-mix', 'wi-rain-mix'],
+        67: ['Heavy freezing rain', 'wi-rain-mix', 'wi-rain-mix'],
+        71: ['Slight snow fall', 'wi-snow', 'wi-snow'],
+        73: ['Snow fall', 'wi-snow', 'wi-snow'],
+        75: ['Heavy snow fall', 'wi-snow', 'wi-snow'],
+        77: ['Snow grains', 'wi-snow', 'wi-snow'],
+        80: ['Slight rain showers', 'wi-showers', 'wi-showers'],
+        81: ['Rain showers', 'wi-showers', 'wi-showers'],
+        82: ['Heavy rain showers', 'wi-showers', 'wi-showers'],
+        85: ['Slight snow showers', 'wi-snow', 'wi-snow'],
+        86: ['Heavy snow showers', 'wi-snow', 'wi-snow'],
+        95: ['Thunderstorm', 'wi-thunderstorm', 'wi-thunderstorm'],
+        96: ['Thunderstorm with slight hail', 'wi-thunderstorm', 'wi-thunderstorm'],
+        99: ['Thunderstorm with heavy hail', 'wi-thunderstorm', 'wi-thunderstorm']
+    }
+
+    static async fetch(lat, lon){
+        if( ! this.#cache.data || ! this.#cache.forecast || this.#cache.expire < Date.now() ){
+            this.#cache.data = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)).json();
+            this.#cache.forecast = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=5`)).json();
+            this.#cache.expire = Date.now() + 3600000; // Cache for 1 hour
+        }
+
+        let forecast = [];
+
+        for( let i = 0; i < this.#cache.forecast.daily.time.length; i++ ){
+            forecast.push({
+                date: this.#cache.forecast.daily.time[i],
+                code: this.#cache.forecast.daily.weather_code[i],
+                status: this.codes[this.#cache.forecast.daily.weather_code[i]],
+                temp_max: Math.round(this.celsiusToFahrenheit(this.#cache.forecast.daily.temperature_2m_max[i])),
+                temp_min: Math.round(this.celsiusToFahrenheit(this.#cache.forecast.daily.temperature_2m_min[i]))
+            });
+        }
+
+        return {
+            temperature: Math.round(this.celsiusToFahrenheit(this.#cache.data.current_weather.temperature)),
+            status: this.codes[this.#cache.data.current_weather.weathercode],
+            code: this.#cache.data.current_weather.weathercode,
+            forecast
+        }
+    }
+
+    static celsiusToFahrenheit(celsius){
+        return (celsius * 9/5) + 32;
+    }
+}
+
+class UI {
+    static days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    static updateWeather(weather){
+        document.querySelector('#weather-temperature').textContent = `${weather.temperature}`;
+        document.querySelector('#weather-status').textContent = weather.status[0];
+        document.querySelector('#weather-icon').className = `wi ${weather.status[1]}`;
+
+        document.querySelector("#forecast").innerHTML = "";
+
+        for( let day of weather.forecast ){
+            let date = new Date(day.date);
+            let dayName = date.toLocaleDateString(undefined, { weekday: 'short' });
+
+            let forecastItem = document.createElement('h3');
+            forecastItem.className = 'forecast-day box rounded inset';
+
+            let forecastDate = document.createElement('span');
+            forecastDate.className = 'forecast-date';
+            forecastDate.textContent = dayName;
+            forecastItem.appendChild(forecastDate);
+
+            let forecastIcon = document.createElement('i');
+            forecastIcon.className = `wi ${day.status[1]}`;
+            forecastItem.appendChild(forecastIcon);
+
+            let forecastTemperatureMax = document.createElement('span');
+            forecastTemperatureMax.className = 'forecast-temperature-max';
+            forecastTemperatureMax.textContent = `${day.temp_max}°`;
+            forecastItem.appendChild(forecastTemperatureMax);
+
+            let forecastTemperatureMin = document.createElement('span');
+            forecastTemperatureMin.className = 'forecast-temperature-min';
+            forecastTemperatureMin.textContent = `${day.temp_min}°`;
+            forecastItem.appendChild(forecastTemperatureMin);
+
+            document.querySelector('#forecast').appendChild(forecastItem);
+        }
+    }
+
+    static updateTime(){
+        const now = new Date();
+
+        let time = now.getHours();
+        if( time > 12 ){
+            time = time%12 + ":" + now.getMinutes().toString().padStart(2, '0') + " pm";
+        } else {
+            time = time + ":" + now.getMinutes().toString().padStart(2, '0') + " am";
+        }
+
+        document.querySelector("#time").textContent = time;
+        document.querySelector("#date").textContent = `${UI.days[now.getDay()]}, ${now.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+    }
+
+    static initDraggables(){
+        const draggables = document.querySelectorAll('.draggable');
+
+        draggables.forEach(draggable => {
+            const events = ['mousedown', 'touchstart'];
+
+            for( let event of events ){
+                draggable.addEventListener(event, (e) => {
+                    if( e.target.tagName === 'A' || e.target.tagName == 'TEXTAREA' || e.target.tagName == 'INPUT' || e.target.tagName == 'SELECT' ) return;
+                    e.preventDefault();
+
+                    const rect = draggable.getBoundingClientRect();
+                    const startLeft = rect.left + window.scrollX;
+                    const startTop = rect.top + window.scrollY; 
+
+                    draggable.style.position = 'absolute';
+                    draggable.style.left = `${startLeft}px`;
+                    draggable.style.top = `${startTop}px`;
+                    draggable.style.margin = '0';
+
+                    const offsetX = (e.pageX || e.touches[0].pageX) - startLeft;
+                    const offsetY = (e.pageY || e.touches[0].pageY) - startTop;
+
+                    const onMouseMove = (e) => {
+                        const newLeft = (e.pageX || e.touches[0].pageX) - offsetX;
+                        const newTop = (e.pageY || e.touches[0].pageY) - offsetY;
+                        draggable.style.left = `${newLeft}px`;
+                        draggable.style.top = `${newTop}px`;
+                    };
+
+                    const onMouseUp = () => {
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+                        document.removeEventListener('touchmove', onMouseMove);
+                        document.removeEventListener('touchend', onMouseUp);
+                        window.removeEventListener('mousemove', onMouseMove);
+                        window.removeEventListener('mouseup', onMouseUp);
+                        window.removeEventListener('touchmove', onMouseMove);
+                        window.removeEventListener('touchend', onMouseUp);
+                    };
+
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('touchmove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                    document.addEventListener('touchend', onMouseUp);
+
+                    window.addEventListener('mousemove', onMouseMove);
+                    window.addEventListener('touchmove', onMouseMove);
+                    window.addEventListener('mouseup', onMouseUp);
+                    window.addEventListener('touchend', onMouseUp);
+                });
+            }
+        });
+    }
+}
+
+window.addEventListener("load", () => {
+    let update = async function(){
+        const location = await Location.fetch();
+        const weather = await Weather.fetch(location.lat, location.lon);
+
+        UI.updateWeather(weather);
+        UI.updateTime();
+    };
+
+    document.querySelector("#notepad").addEventListener("keyup", () => {
+        window.localStorage.notepad = document.querySelector("#notepad").value;
+    });
+
+    document.querySelector("#notepad").value = window.localStorage.notepad || "";
+
+    setInterval(update, 60000);
+    update();
+
+    setTimeout(() => history.go(0), 12000000);
+
+    UI.initDraggables();
+});

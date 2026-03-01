@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title>
+            Koikaze
+        </title>
+
+        <script src="index.js"></script>
+        <link rel="stylesheet" href="css/greensteam/greensteam.css">
+        <link rel="stylesheet" href="css/weather-icons.min.css">
+        <link rel="stylesheet" href="css/koikaze.css">
+    </head>
+    <body>
+        <div class="time">
+            <h1 id="time"></h1>
+            <h2 id="date"></h2>
+        </div>
+
+        <div class="window half draggable" name="Weather">
+            <h1><i class="wi" id="weather-icon"></i> <span id="weather-status"></span> &middot; <span id="weather-temperature"></span>°F</h1>
+
+            <fieldset>
+                <legend>Forecast</legend>
+                <div class="forecast" id="forecast"></div>
+            </fieldset>
+        </div>
+
+        <div class="window half draggable" name="Notepad">
+            <textarea id="notepad"></textarea>
+        </div>
+    </body>
+</html>
