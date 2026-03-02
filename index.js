@@ -85,8 +85,6 @@ class Weather {
 }
 
 class UI {
-    static days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
     static updateWeather(weather){
         document.querySelector('#weather-temperature').textContent = `${weather.temperature}`;
         document.querySelector('#weather-status').textContent = weather.status[0];
@@ -135,7 +133,7 @@ class UI {
         }
 
         document.querySelector("#time").textContent = time;
-        document.querySelector("#date").textContent = `${UI.days[now.getDay()]}, ${now.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+        document.querySelector("#date").textContent = `${now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })}`;
     }
 
     static initDraggables(){
@@ -214,10 +212,21 @@ class UI {
     static initWindowOpenClose(){
         for( let event of ['click', 'touchstart'] ){
                 window.addEventListener(event, (e) => {
-                    if(
-                        e.target.classList.contains('window') &&
-                        e.offsetX > e.target.clientWidth - 28 && e.offsetY < 28 &&
-                        e.offsetX < e.target.clientWidth - 10 && e.offsetY >= 10
+                    if( ! e.target.classList.contains('window') ) return;
+
+                    const rect = e.target.getBoundingClientRect();
+
+                    // detect if this is a touch event. if so, get the coordinates from the touch event instead of the mouse event.
+                    const p = (e.touches && e.touches.length) ? e.touches[0]
+                            : (e.changedTouches && e.changedTouches.length) ? e.changedTouches[0]
+                            : e;
+
+                    const offsetX = p.clientX - rect.left;
+                    const offsetY = p.clientY - rect.top;
+
+                    if (
+                        offsetX > e.target.clientWidth - 28 && offsetX < e.target.clientWidth - 10 &&
+                        offsetY >= 10 && offsetY < 28
                     ){
                         e.target.classList.add('closed');
                         e.preventDefault();
