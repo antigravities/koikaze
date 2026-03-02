@@ -231,6 +231,11 @@ class UI {
                         offsetY >= 10 && offsetY < 28
                     ){
                         e.target.classList.add('closed');
+                        delete window.localStorage["draggable__" + e.target.getAttribute("name")];
+                        e.target.style.position = null;
+                        e.target.style.left = null;
+                        e.target.style.top = null;
+                        e.target.style.margin = null;
                         e.preventDefault();
                     }
             });
