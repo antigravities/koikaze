@@ -55,7 +55,7 @@ class Weather {
     static async fetch(lat, lon){
         if( ! this.#cache.data || ! this.#cache.forecast || this.#cache.expire < Date.now() ){
             this.#cache.data = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)).json();
-            this.#cache.forecast = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=6`)).json();
+            this.#cache.forecast = await (await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=6&timezone=auto`)).json();
             this.#cache.expire = Date.now() + 3600000; // Cache for 1 hour
         }
 
@@ -95,8 +95,8 @@ class UI {
         document.querySelector("#forecast").innerHTML = "";
 
         for( let day of weather.forecast ){
-            let date = new Date(day.date);
-            let dayName = date.toLocaleDateString(undefined, { weekday: 'short' });
+            let date = new Date(day.date + " UTC");
+            let dayName = date.toLocaleDateString(undefined, { weekday: 'short', timeZone: 'UTC' });
 
             let forecastItem = document.createElement('h3');
             forecastItem.className = 'forecast-day box rounded inset';
