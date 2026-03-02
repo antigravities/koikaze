@@ -161,12 +161,12 @@ class UI {
                     draggable.style.top = `${startTop}px`;
                     draggable.style.margin = '0';
 
-                    const offsetX = (e.pageX || e.touches[0].pageX) - startLeft;
-                    const offsetY = (e.pageY || e.touches[0].pageY) - startTop;
+                    const offsetX = (e.pageX || (e.touches || [])[0]?.pageX) - startLeft;
+                    const offsetY = (e.pageY || (e.touches || [])[0]?.pageY) - startTop;
 
                     const onMouseMove = (e) => {
-                        const newLeft = (e.pageX || e.touches[0].pageX) - offsetX;
-                        const newTop = (e.pageY || e.touches[0].pageY) - offsetY;
+                        const newLeft = (e.pageX || (e.touches || [])[0]?.pageX) - offsetX;
+                        const newTop = (e.pageY || (e.touches || [])[0]?.pageY) - offsetY;
                         draggable.style.left = `${newLeft}px`;
                         draggable.style.top = `${newTop}px`;
                         draggable.classList.add('dragging');
