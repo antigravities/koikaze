@@ -147,6 +147,8 @@ class UI {
                     document.querySelector(".window.last") ? document.querySelector(".window.last").classList.remove("last") : null;
                     draggable.classList.add("last");
 
+                    document.querySelector(".icon.selected") ? document.querySelector(".icon.selected").classList.remove("selected") : null;
+
                     if( e.target.tagName === 'A' || e.target.tagName == 'TEXTAREA' || e.target.tagName == 'INPUT' || e.target.tagName == 'SELECT' ) return;
                     e.preventDefault();
 
@@ -209,7 +211,7 @@ class UI {
         });
     }
 
-    static initWindowOpenClose(){
+    static initWindowClose(){
         for( let event of ['click', 'touchstart'] ){
                 window.addEventListener(event, (e) => {
                     if( ! e.target.classList.contains('window') ) return;
@@ -234,6 +236,66 @@ class UI {
             });
         }
     }
+
+    static initIcons(){
+        document.querySelectorAll('.icon').forEach(icon => {
+            // click handler (mouse & synthesized click after touch)
+            icon.addEventListener('click', (e) => {
+                if (icon.dataset.skipClick) { delete icon.dataset.skipClick; return; }
+
+                const previous = document.querySelector('.icon.selected');
+                if (previous && previous !== icon) previous.classList.remove('selected');
+
+                if (icon.classList.contains('selected')){
+                    icon.classList.remove('selected');
+
+                    const name = icon.getAttribute('name');
+                    const win = document.querySelector(`.window[name="${name}"]`);
+
+                    if (win){
+                        win.classList.remove('closed');
+
+                        document.querySelector(".window.last") ? document.querySelector(".window.last").classList.remove("last") : null;
+
+                        win.classList.add('last');
+                    }
+                } else {
+                    icon.classList.add('selected');
+                }
+            });
+
+            // touch: detect double-tap to launch (time + distance threshold)
+            icon.addEventListener('touchend', (e) => {
+                if (!e.changedTouches || !e.changedTouches.length) return;
+                const now = Date.now();
+                const t = e.changedTouches[0];
+                const x = t.clientX, y = t.clientY;
+                const last = icon._lastTap || { time: 0, x: 0, y: 0 };
+                const dt = now - last.time;
+                const dx = x - (last.x || 0);
+                const dy = y - (last.y || 0);
+                const dist2 = dx*dx + dy*dy;
+
+                // double-tap if within 350ms and within ~30px
+                if (dt > 0 && dt < 350 && dist2 < (30 * 30)){
+                    const name = icon.getAttribute('name');
+                    const win = document.querySelector(`.window[name="${name}"]`);
+                    if (win){
+                        win.classList.remove('closed');
+                        win.classList.add('last');
+                    }
+
+                    // prevent the synthesized click from duplicating behavior
+                    icon.dataset.skipClick = '1';
+                    e.preventDefault();
+                    icon._lastTap = { time: 0, x: 0, y: 0 };
+                    return;
+                }
+
+                icon._lastTap = { time: now, x, y };
+            });
+        });
+    }
 }
 
 window.addEventListener("load", () => {
@@ -256,6 +318,7 @@ window.addEventListener("load", () => {
 
     setTimeout(() => history.go(0), 12000000);
 
-    UI.initWindowOpenClose();
+    UI.initWindowClose();
     UI.initDraggables();
+    UI.initIcons();
 });
