@@ -48,3 +48,15 @@ body {
 .forecast-day > .wi {
     padding: 4px;
 }
+
+.window {
+    z-index: 5;
+}
+
+.window.dragging, .window.last {
+    z-index: 6;
+}
+
+.window.closed {
+    display: none;
+}

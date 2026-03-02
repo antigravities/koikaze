@@ -146,6 +146,9 @@ class UI {
 
             for( let event of events ){
                 draggable.addEventListener(event, (e) => {
+                    document.querySelector(".window.last") ? document.querySelector(".window.last").classList.remove("last") : null;
+                    draggable.classList.add("last");
+
                     if( e.target.tagName === 'A' || e.target.tagName == 'TEXTAREA' || e.target.tagName == 'INPUT' || e.target.tagName == 'SELECT' ) return;
                     e.preventDefault();
 
@@ -166,6 +169,7 @@ class UI {
                         const newTop = (e.pageY || e.touches[0].pageY) - offsetY;
                         draggable.style.left = `${newLeft}px`;
                         draggable.style.top = `${newTop}px`;
+                        draggable.classList.add('dragging');
 
                         if( draggable.getAttribute("name") ){
                             window.localStorage["draggable__" + draggable.getAttribute("name")] = JSON.stringify({ left: newLeft, top: newTop });
@@ -181,6 +185,8 @@ class UI {
                         window.removeEventListener('mouseup', onMouseUp);
                         window.removeEventListener('touchmove', onMouseMove);
                         window.removeEventListener('touchend', onMouseUp);
+
+                        draggable.classList.remove('dragging');
                     };
 
                     document.addEventListener('mousemove', onMouseMove);
@@ -204,6 +210,21 @@ class UI {
             }
         });
     }
+
+    static initWindowOpenClose(){
+        for( let event of ['click', 'touchstart'] ){
+                window.addEventListener(event, (e) => {
+                    if(
+                        e.target.classList.contains('window') &&
+                        e.offsetX > e.target.clientWidth - 28 && e.offsetY < 28 &&
+                        e.offsetX < e.target.clientWidth - 10 && e.offsetY >= 10
+                    ){
+                        e.target.classList.add('closed');
+                        e.preventDefault();
+                    }
+            });
+        }
+    }
 }
 
 window.addEventListener("load", () => {
@@ -226,5 +247,6 @@ window.addEventListener("load", () => {
 
     setTimeout(() => history.go(0), 12000000);
 
+    UI.initWindowOpenClose();
     UI.initDraggables();
 });
