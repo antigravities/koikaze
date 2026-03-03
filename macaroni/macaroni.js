@@ -10,10 +10,6 @@ class HeyMacaroni {
         this.#container = document.createElement("div");
         this.#container.id = "hey-macaroni-container";
 
-        let _cache = new Image();
-        _cache.src = "macaroni/fall.gif";
-        _cache.src = "macaroni/dance.gif";
-
         document.body.appendChild(this.#container);
 
         this.start();
@@ -36,6 +32,11 @@ class HeyMacaroni {
         await this.timeout(1000);
 
         while( ! this.#stop ){
+            // for whatever reason we have to do the cache bust trick on ffx
+            // still cache it anyway so we don't get a flicker of the fall gif
+            let _cache = new Image();
+            _cache.src = "macaroni/dance.gif?t=" + Date.now();
+
             for( let i=0; i<5; i++ ){
                 let x = Math.random() * window.innerWidth;
                 let y = Math.random() * window.innerHeight * 0.2;
@@ -66,7 +67,7 @@ class HeyMacaroni {
             await this.timeout(110);
 
             this.#macaronis.forEach(macaroni => {
-                macaroni.src = "macaroni/dance.gif";
+                macaroni.src = _cache.src;
             });
 
             await this.timeout(26600);
