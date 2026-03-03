@@ -22,6 +22,11 @@
                 <img src="icons/notepad.png">
                 Notepad
             </div>
+
+            <div class="icon" name="Call me">
+                <img src="icons/phone.png">
+                Call me
+            </div>
         </div>
 
         <div class="time">
@@ -40,6 +45,14 @@
 
         <div class="window half draggable closed" name="Notepad">
             <textarea id="notepad"></textarea>
+        </div>
+
+        <div class="window half draggable closed" name="Call me">
+            <h1>Topic: <span id="callme-subscribe"></span></h1>
+            <div class="callme-inset inset">
+                <button id="callme-call">Call</button>
+                <button id="callme-reset">Reset</button>
+            </div>
         </div>
     </body>
 </html>

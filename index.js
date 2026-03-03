@@ -1,3 +1,5 @@
+const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
 class Location {
     static #cache = {};
 
@@ -84,6 +86,34 @@ class Weather {
     }
 }
 
+class CallMe {
+    static init(){
+        if( ! window.localStorage["callme__ntfy"] ){
+            CallMe.generateUrl();
+        }
+
+        document.querySelector("#callme-subscribe").innerText = `ntfy.sh/${window.localStorage["callme__ntfy"]}`;
+        document.querySelector("#callme-call").addEventListener("click", CallMe.call);
+        document.querySelector("#callme-reset").addEventListener("click", CallMe.generateUrl);
+    }
+
+    static generateUrl(){
+        window.localStorage["callme__ntfy"] = new Array(15).fill(0).map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
+        document.querySelector("#callme-subscribe").innerText = `ntfy.sh/${window.localStorage["callme__ntfy"]}`;
+    }
+
+    static async call(){
+        await fetch(`https://ntfy.sh/${window.localStorage["callme__ntfy"]}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: 'Call me notification sent at ' + new Date().toLocaleTimeString(),
+            headers: {
+                Title: 'Koikaze'
+            }
+        });
+    }
+}
+
 class UI {
     static updateWeather(weather){
         document.querySelector('#weather-temperature').textContent = `${weather.temperature}`;
@@ -149,7 +179,7 @@ class UI {
 
                     document.querySelector(".icon.selected") ? document.querySelector(".icon.selected").classList.remove("selected") : null;
 
-                    if( e.target.tagName === 'A' || e.target.tagName == 'TEXTAREA' || e.target.tagName == 'INPUT' || e.target.tagName == 'SELECT' ) return;
+                    if( e.target.tagName === 'A' || e.target.tagName == 'TEXTAREA' || e.target.tagName == 'INPUT' || e.target.tagName == 'SELECT' || e.target.tagName == 'BUTTON' ) return;
                     e.preventDefault();
 
                     const rect = draggable.getBoundingClientRect();
@@ -326,4 +356,6 @@ window.addEventListener("load", () => {
     UI.initWindowClose();
     UI.initDraggables();
     UI.initIcons();
+
+    CallMe.init();
 });
