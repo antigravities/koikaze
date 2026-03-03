@@ -331,10 +331,35 @@ class UI {
             });
         });
     }
+
+    static initScreensaver(timeoutSec = 180000){
+        const screensavers = [];
+
+        if( window.HeyMacaroni ) screensavers.push(HeyMacaroni);
+        if( window.SteamDiscover ) screensavers.push(SteamDiscover);
+
+        const events = [ "mousemove", "keydown", "mousedown", "touchstart", "scroll" ];
+
+        let ss;
+        let timeout;
+
+        const resetTimer = () => {
+            if( ss ) ss.stop();
+            if( timeout ) clearTimeout(timeout);
+
+            timeout = setTimeout(() => {
+                ss = new screensavers[Math.floor(Math.random() * screensavers.length)]();
+            }, timeoutSec);
+        }
+
+        events.forEach(event => {
+            window.addEventListener(event, resetTimer);
+        });
+    }
 }
 
 window.addEventListener("load", () => {
-    if( window.HeyMacaroni ) window.HeyMacaroni.attachScreensaver();
+    UI.initScreensaver();
 
     let update = async function(){
         const location = await Location.fetch();

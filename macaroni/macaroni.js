@@ -94,26 +94,6 @@ class HeyMacaroni {
         if( this.#container.parentElement ) this.#container.parentElement.removeChild(this.#container);
         this.#stop = true;
     }
-
-    static attachScreensaver(timeoutSec = 180000){
-        const events = [ "mousemove", "keydown", "mousedown", "touchstart", "scroll" ];
-
-        let mac;
-        let timeout;
-
-        const resetTimer = () => {
-            if( mac ) mac.stop();
-            if( timeout ) clearTimeout(timeout);
-
-            timeout = setTimeout(() => {
-                mac = new HeyMacaroni();
-            }, timeoutSec);
-        }
-
-        events.forEach(event => {
-            window.addEventListener(event, resetTimer);
-        });
-    }
 }
 
 window.HeyMacaroni = HeyMacaroni;
