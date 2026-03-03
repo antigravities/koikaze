@@ -1,0 +1,38 @@
+#hey-macaroni-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-color: black;
+}
+
+.hey-macaroni-splash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 598px;
+    height: 449px;
+    background-image: url("splash.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.hey-macaroni-endsplash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 401px;
+    height: 537px;
+    background-image: url("endsplash.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.hey-macaroni-macaroni {
+    position: absolute;
+    border: 0;
+}

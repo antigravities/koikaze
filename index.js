@@ -334,6 +334,8 @@ class UI {
 }
 
 window.addEventListener("load", () => {
+    if( window.HeyMacaroni ) window.HeyMacaroni.attachScreensaver();
+
     let update = async function(){
         const location = await Location.fetch();
         const weather = await Weather.fetch(location.lat, location.lon);
