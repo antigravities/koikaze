@@ -337,6 +337,7 @@ class UI {
 
         if( window.HeyMacaroni ) screensavers.push(HeyMacaroni);
         if( window.SteamDiscover ) screensavers.push(SteamDiscover);
+        if( window.WebTV ) screensavers.push(WebTV);
 
         const events = [ "mousemove", "keydown", "mousedown", "touchstart", "scroll" ];
 
@@ -355,6 +356,8 @@ class UI {
         events.forEach(event => {
             window.addEventListener(event, resetTimer);
         });
+
+        resetTimer();
     }
 }
 

@@ -1,0 +1,35 @@
+#webtv-container {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    z-index: 9998;
+
+    background-image: url('connecting.gif');
+    background-position: center 10vh;
+    background-repeat: no-repeat;
+    background-color: black;
+
+    background-size: 776px 576px;
+}
+
+.webtv-frame {
+    width: 800px;
+    height: 600px;
+    opacity: 0.5;
+    background-color: white;
+
+    position: absolute;
+    top: 100vh;
+    z-index: 9999;
+}
+
+.webtv-frame-active {
+    top: -600px;
+    bottom: initial;
+    transition: top 20s ease-in-out;
+}
